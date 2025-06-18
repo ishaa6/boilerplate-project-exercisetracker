@@ -49,20 +49,27 @@ app.post('/api/users/:_id/exercises', (req, res) => {
     username: user.username,
     description: description,
     duration: parseInt(duration),
-    date: exerciseDate.toDateString()
+    date: exerciseDate
   };
   exercises.push(exercise);
-  res.json(exercise);
+
+  res.json({
+    _id: user._id,
+    username: user.username,
+    description: exercise.description,
+    duration: exercise.duration,
+    date: exercise.date.toDateString()
+  });
 })
 
 app.get('/api/users/:_id/logs', (req, res) => {
   const _id = req.params._id;
-  const user = users.find(u => u.userId === _id);  
+  const user = users.find(u => u._id === _id);  
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   }
   const { from, to, limit } = req.query;
-  let userExercises = exercises.filter(e => e._id === id);
+  let userExercises = exercises.filter(e => e._id === _id);
   if(from){
     const fromDate = new Date(from);
     userExercises = userExercises.filter(e => new Date(e.date) >= fromDate);
@@ -81,7 +88,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
     log: userExercises.map(e => ({
       description: e.description,
       duration: e.duration,
-      date: e.date    
+      date: new Date(e.date).toDateString() 
     }))
   })
 })
